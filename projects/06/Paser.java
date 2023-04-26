@@ -1,16 +1,15 @@
 
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Paser {
 
-	private Scanner asmScanner;
+	private List<AsmModule> asmList = new ArrayList<>();
 
-	private String nowAsmSymbol;
-
-	private String nowAsmCommand;
+	private int asmListIndexCounter;
 
 	private static final String A_COMMAND = "A_COMMAND";
 
@@ -34,9 +33,22 @@ public class Paser {
 	 * @return Paser
 	 */
 	public Paser(File asmFile) {
-		try {
-			asmScanner = new Scanner(asmFile);
-		} catch (FileNotFoundException e) {
+		try(Scanner asmScanner = new Scanner(asmFile)) {
+
+			//
+			while(asmScanner.hasNextLine()) {
+				String asmCode = asmScanner.nextLine();
+
+				// If
+				if (!asmCode.isBlank() && !asmCode.matches("^//.*$")) {
+
+					// Remove
+					String asmSymbol = removeNgChara(asmCode);
+					String asmCommand = removeNgChara(asmScanner.nextLine());
+					asmList.add(new AsmModule(asmSymbol, asmCommand));
+				}
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -51,7 +63,7 @@ public class Paser {
 	 * false: No command
 	 */
 	public boolean hasMoreCommand() {
-		return asmScanner.hasNextLine();
+		return asmListIndexCounter < asmList.size();
 	}
 
 
@@ -65,8 +77,7 @@ public class Paser {
 	 * @return void
 	 */
 	public void advance() {
-		nowAsmSymbol = asmScanner.nextLine();
-		nowAsmCommand = asmScanner.nextLine();
+		asmListIndexCounter++;
 	}
 
 
@@ -76,18 +87,19 @@ public class Paser {
 	 * Check now Assembly-command-symbol and return this type.
 	 *
 	 * @param void
-	 * @return String Assembly command type <br>
-	 * A_COMMAND
-	 * C_COMMAND
-	 * L_COMMAND
+	 * @return String Assembly command type
 	 */
 	public String commandType() {
 
-		if (nowAsmCommand.matches(PATTERN_SYMBOL_A_COMMAND)) {
+		//
+		AsmModule asmModule = asmList.get(asmListIndexCounter);
+		String nowAsmSymbol = asmModule.getAsmSymbol();
+
+		if (nowAsmSymbol.matches(PATTERN_SYMBOL_A_COMMAND)) {
 			return A_COMMAND;
-		} else if (nowAsmCommand.matches(PATTERN_SYMBOL_C_COMMAND)) {
+		} else if (nowAsmSymbol.matches(PATTERN_SYMBOL_C_COMMAND)) {
 			return C_COMMAND;
-		} else if (nowAsmCommand.matches(PATTERN_SYMBOL_L_COMMAND)) {
+		} else if (nowAsmSymbol.matches(PATTERN_SYMBOL_L_COMMAND)) {
 			return L_COMMAND;
 		}
 		return null;
@@ -104,7 +116,8 @@ public class Paser {
 	 * @return String Assembly command type
 	 */
 	public String symbol() {
-		return nowAsmSymbol;
+		AsmModule asmModule = asmList.get(asmListIndexCounter);
+		return asmModule.getAsmSymbol();
 	}
 
 
@@ -118,7 +131,7 @@ public class Paser {
 	 * @return String Assembly-command of dest
 	 */
 	public String dest() {
-		return nowAsmCommand.substring(10, 13);
+		return null;
 	}
 
 
@@ -132,7 +145,7 @@ public class Paser {
 	 * @return String Assembly-command of comp
 	 */
 	public String comp() {
-		return nowAsmCommand.substring(3, 10);
+		return null;
 	}
 
 
@@ -146,6 +159,41 @@ public class Paser {
 	 * @return String Assembly-command of jump
 	 */
 	public String jump() {
-		return nowAsmCommand.substring(13, 16);
+		return null;
+	}
+
+
+	private String removeNgChara(String value) {
+		String trimValue = value.replaceAll("^[\r\n|\r|\n|\t].$", "");
+		return trimValue.replace("(?<=//).*$", "");
+	}
+}
+
+
+class AsmModule {
+
+	private String asmSymbol;
+
+	private String asmCommand;
+
+
+	// All args constracor
+	public AsmModule(String asmSymbol, String asmCommand) {
+		this.asmSymbol = asmSymbol;
+		this.asmCommand = asmCommand;
+	}
+
+	// Getter and Setter
+	public void setAsmSymbol(String asmSymbol) {
+		this.asmSymbol = asmSymbol;
+	}
+	public String getAsmSymbol() {
+		return asmSymbol;
+	}
+	public void setAsmCommand(String asmCommand) {
+		this.asmCommand = asmCommand;
+	}
+	public String getAsmCommand() {
+		return asmCommand;
 	}
 }
