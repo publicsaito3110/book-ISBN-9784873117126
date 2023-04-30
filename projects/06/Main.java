@@ -10,10 +10,9 @@ public class Main {
 		// ADD test
 		//------------
 		Paser paser = new Paser(new File("./add/add.asm"));
-		paser.hasMoreCommand();
-		paser.advance();
-		paser.commandType();
-		paser.dest();
+		System.out.println(paser.hasMoreCommand());
+		System.out.println(paser.commandType());
+		System.out.println(paser.dest());
 	}
 
 }

@@ -21,13 +21,14 @@ public class Paser {
 
 	private static final String PATTERN_SYMBOL_C_COMMAND = "C_COMMAND";
 
-	private static final String PATTERN_SYMBOL_L_COMMAND = "L_COMMAND";
+	private static final String PATTERN_SYMBOL_L_COMMAND = "^\\([0-9a-zA-Z]\\)+$";
 
 
 	/**
 	 * Constractor
 	 *
 	 * Param needs Assembly-file path and load. <br>
+	 * Reading file and set Assembly code
 	 *
 	 * @param asmFile Assembly file
 	 * @return Paser
@@ -35,14 +36,14 @@ public class Paser {
 	public Paser(File asmFile) {
 		try(Scanner asmScanner = new Scanner(asmFile)) {
 
-			//
+			// Roop util finishing read file
 			while(asmScanner.hasNextLine()) {
 				String asmCode = asmScanner.nextLine();
 
-				// If
+				// If it's not in no char and comment start
 				if (!asmCode.isBlank() && !asmCode.matches("^//.*$")) {
 
-					// Remove
+					// Remove comment
 					String asmSymbol = removeNgChara(asmCode);
 					String asmCommand = removeNgChara(asmScanner.nextLine());
 					asmList.add(new AsmModule(asmSymbol, asmCommand));
@@ -70,8 +71,7 @@ public class Paser {
 	/**
 	 * Read next Assembly-command
 	 *
-	 * Read next Assembly commands of row symbol and command. <br>
-	 * It is row Assembly.
+	 * Read next Assembly commands of row symbol and command.
 	 *
 	 * @param void
 	 * @return void
@@ -91,7 +91,7 @@ public class Paser {
 	 */
 	public String commandType() {
 
-		//
+		// Get now Assembly command
 		AsmModule asmModule = asmList.get(asmListIndexCounter);
 		String nowAsmSymbol = asmModule.getAsmSymbol();
 
@@ -109,15 +109,16 @@ public class Paser {
 	/**
 	 * Now Assembly-symbol
 	 *
-	 * Now Assembly-symbol. It is row. <br>
-	 * This method is called by Address-instruction.
+	 * Row Assembly-symbol. <br>
+	 * This method is only called by A_COMMAND or L_COMMAND. <br>
+	 * ex) @abc -> abc, (LOOP) -> LOOP...
 	 *
 	 * @param void
-	 * @return String Assembly command type
+	 * @return String Row Assembly-symbol
 	 */
 	public String symbol() {
-		AsmModule asmModule = asmList.get(asmListIndexCounter);
-		return asmModule.getAsmSymbol();
+		String asmSynbol = asmList.get(asmListIndexCounter).getAsmSymbol();
+		return asmSynbol.replaceAll("[@|\\(|\\)]", "");
 	}
 
 
@@ -163,8 +164,16 @@ public class Paser {
 	}
 
 
+	/**
+	 * [private common] Remove NG Chara
+	 *
+	 * Remove chara of Space, Tab and Comment. <br>
+	 *
+	 * @param value chara
+	 * @return String Removed NG chara
+	 */
 	private String removeNgChara(String value) {
-		String trimValue = value.replaceAll("^[\r\n|\r|\n|\t].$", "");
+		String trimValue = value.replaceAll("[ |　|	]", "");
 		return trimValue.replace("(?<=//).*$", "");
 	}
 }
