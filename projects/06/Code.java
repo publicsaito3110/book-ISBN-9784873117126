@@ -112,8 +112,6 @@ public class Code {
 	 * @return String 7Bit comp's binary code
 	 */
 	public String comp(String asmCommand) {
-
-
 		return null;
 	}
 
@@ -128,8 +126,6 @@ public class Code {
 	 * @return String 3Bit jump's binary code
 	 */
 	public String jump(String asmCommand) {
-
-
 		return null;
 	}
 }
