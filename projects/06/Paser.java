@@ -19,7 +19,7 @@ public class Paser {
 
 	private static final String PATTERN_SYMBOL_A_COMMAND = "^@[0-9a-zA-Z]+$";
 
-	private static final String PATTERN_SYMBOL_C_COMMAND = "C_COMMAND";
+	private static final String PATTERN_SYMBOL_C_COMMAND = "=|;";
 
 	private static final String PATTERN_SYMBOL_L_COMMAND = "^\\([0-9a-zA-Z]\\)+$";
 
@@ -118,7 +118,7 @@ public class Paser {
 	 */
 	public String symbol() {
 		String asmSynbol = asmList.get(asmListIndexCounter).getAsmSymbol();
-		return asmSynbol.replaceAll("[@|\\(|\\)]", "");
+		return asmSynbol.replaceAll("@|\\(|\\)", "");
 	}
 
 
@@ -126,13 +126,16 @@ public class Paser {
 	 * Now Assembly-command of dest
 	 *
 	 * Now Assembly-command that a part of dest only. It is row. <br>
-	 * This method is called by Conpute-instruction.
+	 * This method is called by Conpute-instruction. <br>
+	 * ex) dest=comp;jump -> dest
 	 *
 	 * @param void
 	 * @return String Assembly-command of dest
 	 */
 	public String dest() {
-		return null;
+		String asmSynbol = asmList.get(asmListIndexCounter).getAsmSymbol();
+		int eqIndex = asmSynbol.indexOf("=");
+		return asmSynbol.substring(0, eqIndex);
 	}
 
 
@@ -140,13 +143,17 @@ public class Paser {
 	 * Now Assembly-command of comp
 	 *
 	 * Now Assembly-command that a part of comp only. It is row. <br>
-	 * This method is called by Conpute-instruction.
+	 * This method is called by Conpute-instruction. <br>
+	 * ex) dest=comp;jump -> comp
 	 *
 	 * @param void
 	 * @return String Assembly-command of comp
 	 */
 	public String comp() {
-		return null;
+		String asmSynbol = asmList.get(asmListIndexCounter).getAsmSymbol();
+		int eqIndex = asmSynbol.indexOf("=");
+		int corIndex = asmSynbol.indexOf(";");
+		return asmSynbol.substring(eqIndex, corIndex);
 	}
 
 
@@ -154,18 +161,21 @@ public class Paser {
 	 * Now Assembly-command of jump
 	 *
 	 * Now Assembly-command that a part of jump only. It is row. <br>
-	 * This method is called by Conpute-instruction.
+	 * This method is called by Conpute-instruction. <br>
+	 * ex) dest=comp;jump -> jump
 	 *
 	 * @param void
 	 * @return String Assembly-command of jump
 	 */
 	public String jump() {
-		return null;
+		String asmSynbol = asmList.get(asmListIndexCounter).getAsmSymbol();
+		int corIndex = asmSynbol.indexOf(";");
+		return asmSynbol.substring(corIndex, asmSynbol.length());
 	}
 
 
 	/**
-	 * [private common] Remove NG Chara
+	 * [private method] Remove NG Chara
 	 *
 	 * Remove chara of Space, Tab and Comment. <br>
 	 *
@@ -173,12 +183,18 @@ public class Paser {
 	 * @return String Removed NG chara
 	 */
 	private String removeNgChara(String value) {
-		String trimValue = value.replaceAll("[ |„ÄÄ|	]", "");
+		String trimValue = value.replaceAll(" |Å@|	", "");
 		return trimValue.replace("(?<=//).*$", "");
 	}
 }
 
 
+/**
+ * Value Object of Assembly State
+ *
+ * It is maintain Assembly State. <br>
+ * It is not called outter, inner only.
+ */
 class AsmModule {
 
 	private String asmSymbol;
